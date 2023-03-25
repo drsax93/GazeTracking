@@ -13,6 +13,8 @@ class Pupil(object):
         self.threshold = threshold
         self.x = None
         self.y = None
+        self.contours = None
+        self.if2 = eye_frame.copy()
 
         self.detect_iris(eye_frame)
 
@@ -42,9 +44,11 @@ class Pupil(object):
             eye_frame (numpy.ndarray): Frame containing an eye and nothing else
         """
         self.iris_frame = self.image_processing(eye_frame, self.threshold)
-
+        mask_ = self.iris_frame == 0
+        self.if2[mask_] = 0
         contours, _ = cv2.findContours(self.iris_frame, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[-2:]
         contours = sorted(contours, key=cv2.contourArea)
+        self.contours = contours
 
         try:
             moments = cv2.moments(contours[-2])
