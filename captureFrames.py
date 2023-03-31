@@ -3,7 +3,6 @@ Demonstration of the GazeTracking library.
 Check the README.md for complete documentation.
 """
 
-import matplotlib.pyplot as plt
 import pickle as pickle
 import time
 import cv2
@@ -11,7 +10,8 @@ from gaze_tracking import GazeTracking
 
 gaze = GazeTracking()
 webcam = cv2.VideoCapture(0)
-eye_frames = []
+eye_frames_r = []
+eye_frames_l = []
 time_stamps = []
 time_ref = time.time()
 
@@ -45,25 +45,16 @@ while True:
 
     cv2.imshow("Demo", frame)
 
-    try:
-        eye = gaze.eye_right.frame
-        # obtain pupil contour
-        c = gaze.eye_right.pupil.contours
-        xc = [t[0][0] for t in c[0]]
-        yc = [t[0][1] for t in c[0]]
-        eye_frames.append(gaze.eye_right.frame)
-        time_stamps.append(time.time() - time_ref)
-        cv2.imshow("eye", gaze.eye_right.frame)
-        # plt.figure()
-        # plt.imshow(gaze.eye_right.frame, cmap='gray')
-        # plt.plot(xc, yc, 'r')
-        # plt.show()
-        # plt.pause(0.01)
-        # plt.close('all')
-    except:
-        pass
+    if gaze.pupils_located:
 
-    if cv2.waitKey(1) == 27: # press esc to interrupt the script
+        # check if the right eye has been detected
+        eye = gaze.eye_right.frame
+        # store frames and time
+        eye_frames_r.append(gaze.eye_right.frame)
+        eye_frames_l.append(gaze.eye_left.frame)
+        time_stamps.append(time.time() - time_ref)
+
+    if cv2.waitKey(1) == 27:# press esc to interrupt the script
         break
 
 cv2.destroyAllWindows()
@@ -72,5 +63,5 @@ webcam.release()
 
 # show eye frame
 with open('frames_temp.dat', 'wb') as f:
-    pickle.dump([eye_frames,time_stamps], f)
+    pickle.dump([eye_frames_r, eye_frames_l, time_stamps], f)
 

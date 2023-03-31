@@ -14,7 +14,6 @@ class Pupil(object):
         self.x = None
         self.y = None
         self.contours = None
-        self.if2 = eye_frame.copy()
 
         self.detect_iris(eye_frame)
 
@@ -31,8 +30,9 @@ class Pupil(object):
         """
         kernel = np.ones((3, 3), np.uint8)
         new_frame = cv2.bilateralFilter(eye_frame, 10, 15, 15)
-        new_frame = cv2.erode(new_frame, kernel, iterations=3)
         new_frame = cv2.threshold(new_frame, threshold, 255, cv2.THRESH_BINARY)[1]
+        new_frame = cv2.morphologyEx(new_frame, cv2.MORPH_OPEN, kernel)
+        new_frame = cv2.morphologyEx(new_frame, cv2.MORPH_CLOSE, kernel)
 
         return new_frame
 
